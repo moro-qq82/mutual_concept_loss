@@ -1,0 +1,2 @@
+# uv.lock placeholder generated in an offline environment.
+# Regenerate with: uv pip compile pyproject.toml -o uv.lock
