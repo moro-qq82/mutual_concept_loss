@@ -10,6 +10,21 @@ from .data import (
     SyntheticTaskDataset,
     SyntheticTaskGenerator,
 )
+from .losses import (
+    LossManager,
+    LossSchedule,
+    SparseAutoencoderLoss,
+    SharedSubspaceLoss,
+    TaskLoss,
+)
+from .models import (
+    ConvGridDecoder,
+    ConvGridEncoder,
+    LinearAdapter,
+    SharedAutoencoderModel,
+    SharedBottleneck,
+    SparseAutoencoder,
+)
 from .utils.seed import set_seed
 
 __all__ = [
@@ -21,5 +36,16 @@ __all__ = [
     "PrimitiveInstance",
     "SyntheticTaskDataset",
     "SyntheticTaskGenerator",
+    "LossManager",
+    "LossSchedule",
+    "SparseAutoencoderLoss",
+    "SharedSubspaceLoss",
+    "TaskLoss",
+    "ConvGridDecoder",
+    "ConvGridEncoder",
+    "LinearAdapter",
+    "SharedAutoencoderModel",
+    "SharedBottleneck",
+    "SparseAutoencoder",
     "set_seed",
 ]
