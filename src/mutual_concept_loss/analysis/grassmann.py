@@ -8,7 +8,11 @@ import torch
 
 
 def compute_principal_components(tensor: torch.Tensor, k: int) -> torch.Tensor:
-    """Return the top-k principal components of the given features."""
+    """Return the top-k principal components of the given features.
+
+    Uses full SVD in float64 for numerical stability so that identical
+    subspaces yield zero Grassmann distance up to tight tolerances.
+    """
 
     if tensor.ndim != 2:
         raise ValueError("tensor must be 2D")
@@ -18,10 +22,16 @@ def compute_principal_components(tensor: torch.Tensor, k: int) -> torch.Tensor:
     k = min(k, samples, dim)
     if k == 0:
         raise ValueError("k reduced to zero; ensure tensor has sufficient rank")
-    centered = tensor - tensor.mean(dim=0, keepdim=True)
-    u, s, v = torch.pca_lowrank(centered, q=k)
-    # torch.pca_lowrank returns right singular vectors (v) with shape (dim, k)
-    return v[:, :k]
+
+    # Center and compute SVD in float64 for better orthonormality
+    centered = (tensor.to(torch.float64) - tensor.to(torch.float64).mean(dim=0, keepdim=True))
+    # torch.linalg.svd returns U (n x r), S (r), Vh (r x d) with r=min(n,d)
+    U, S, Vh = torch.linalg.svd(centered, full_matrices=False)
+    V = Vh.mT  # (d x r), columns are orthonormal
+    # 再直交化で数値誤差を抑える
+    Q, _ = torch.linalg.qr(V[:, :k], mode="reduced")
+    # 安定計算にfloat64を使うが、出力は元テンソルのdtypeに戻す
+    return Q.to(tensor.dtype).contiguous()
 
 
 def _principal_angles(basis_a: torch.Tensor, basis_b: torch.Tensor, eps: float = 1e-7) -> torch.Tensor:
@@ -29,10 +39,14 @@ def _principal_angles(basis_a: torch.Tensor, basis_b: torch.Tensor, eps: float =
 
     if basis_a.shape != basis_b.shape:
         raise ValueError("basis_a and basis_b must share the same shape")
-    gram = basis_a.T @ basis_b
+    # まず各基底をfloat64で再直交化
+    Qa = torch.linalg.qr(basis_a.to(torch.float64), mode="reduced")[0]
+    Qb = torch.linalg.qr(basis_b.to(torch.float64), mode="reduced")[0]
+    gram = Qa.T @ Qb
     sigma = torch.linalg.svdvals(gram)
-    sigma = sigma.clamp(min=-1.0 + eps, max=1.0 - eps)
-    return torch.arccos(sigma.clamp(-1.0, 1.0))
+    # 計算誤差で -1 未満に出るのを防ぐための下限のみ微小緩和。上限は 1.0 を許容する
+    sigma = sigma.clamp(min=-1.0 + eps, max=1.0)
+    return torch.arccos(sigma)
 
 
 def grassmann_distance(basis_a: torch.Tensor, basis_b: torch.Tensor) -> float:

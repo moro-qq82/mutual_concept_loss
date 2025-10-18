@@ -78,7 +78,12 @@ def collect_representations(
     sequence = torch.cat(sequence_lengths, dim=0) if sequence_lengths else torch.empty((0,), dtype=torch.int64)
     primitive_idx: torch.Tensor | None = None
     if primitive_indices:
-        primitive_idx = pad_sequence(primitive_indices, batch_first=True, padding_value=-1)
+        # dataset 側で固定長にしているため、バッチを単純結合で集約する
+        try:
+            primitive_idx = torch.cat(primitive_indices, dim=0)
+        except Exception:
+            # 念のため可変長の場合のフォールバック
+            primitive_idx = pad_sequence(primitive_indices, batch_first=True, padding_value=-1)
     return RepresentationCollection(stacked_features, primitives, sequence, primitive_idx)
 
 

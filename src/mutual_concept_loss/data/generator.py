@@ -142,13 +142,20 @@ class SyntheticTaskDataset(Dataset[Dict[str, torch.Tensor]]):
         rng = torch.Generator()
         rng.manual_seed(self.seed + index)
         input_grid, target_grid, multi_hot, sequence_indices = self.generator.generate(rng)
+        seq_len = len(sequence_indices)
+        max_len = self.generator.config.max_composition_length
+        indices_padded = torch.full((max_len,), -1, dtype=torch.int64)
+        if seq_len > 0:
+            # 余分な長さが出ないよう安全側でクリップ
+            take = min(seq_len, max_len)
+            indices_padded[:take] = torch.tensor(sequence_indices[:take], dtype=torch.int64)
         sample: Dict[str, torch.Tensor] = {
             "input": input_grid,
             "target": target_grid,
             "primitives": multi_hot,
-            "primitive_indices": torch.tensor(sequence_indices, dtype=torch.int64),
+            "primitive_indices": indices_padded,
         }
-        sample["sequence_length"] = torch.tensor(len(sequence_indices), dtype=torch.int64)
+        sample["sequence_length"] = torch.tensor(seq_len, dtype=torch.int64)
         self._remember(index, sample)
         return self._clone_sample(sample)
 
@@ -162,4 +169,3 @@ class SyntheticTaskDataset(Dataset[Dict[str, torch.Tensor]]):
     @staticmethod
     def _clone_sample(sample: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         return {key: value.clone() for key, value in sample.items()}
-
