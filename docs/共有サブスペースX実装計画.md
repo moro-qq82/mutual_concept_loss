@@ -18,7 +18,7 @@
 | Phase 2: モデルと損失 | Week 1–2 | ベースラインモデル、共有正則化、疎AE、補助ヘッドの統合 |
 | Phase 3: 学習パイプライン | Week 2–2.5 | 学習ループ、チェックポイント、ロギング（TensorBoard/CSV）✅ |
 | Phase 4: 評価とfew-shot | Week 2.5–3 | ゼロショット評価、few-shot適応スクリプト、学習時間計測 ✅|
-| Phase 5: 表現解析 | Week 3 | CKA/Grassmann計算、疎特徴解析、可視化 |
+| Phase 5: 表現解析 | Week 3 | CKA/Grassmann計算、疎特徴解析、可視化 ✅|
 | Phase 6: 図表と文書化 | Week 4 | 解析レポート、README/docs更新、再現手順 |
 
 ### Phase 0補足: uvを用いた基盤整備
@@ -124,15 +124,14 @@ mutual_concept_loss/
 
 ### 4.5 解析 (`src/analysis`)
 1. **CKA**:
-   - バッチから表現を収集し、線形CKAを計算。
-   - タスク×層のヒートマップを生成。
+   - `src/mutual_concept_loss/analysis/cka.py`で線形CKAを実装し、`collect_representations`と併せてタスク表現を比較可能にした。
+   - `scripts/analyze_representation.py`からヒートマップ出力に対応。
 2. **Grassmann距離**:
-   - PCA基底からの距離計算ユーティリティ。
+   - `analysis/grassmann.py`でPCA基底の抽出とGrassmann距離を提供し、合成長別のサブスペース比較を支援。
 3. **線形プローブ**:
-   - 学習済み表現上でプリミティブ検出器を訓練し、転移性能を測定。
+   - Phase 6での実装対象（現状は未着手）。
 4. **疎特徴解析**:
-   - zユニット活性の統計とプリミティブ出現の相関を出力。
-   - 代表サンプルのグリッド可視化をPNG保存。
+   - `analysis/sparse.py`で平均活性やプリミティブ相関などの統計を算出し、JSONへ集計可能にした。
 
 ## 5. 検証とテスト
 - **ユニットテスト**: `pytest`でデータ生成、損失計算、疎AEの前向き計算を確認。

@@ -1,7 +1,7 @@
 # mutual_concept_loss
 
 共有サブスペースX仮説を検証するためのミニマルな実験基盤です。Phase 0/1では`uv`を用いたPython環境整備と合成タスク生成器を整備し、
-Phase 2ではベースラインモデルと損失群（共有正則化・疎AE・補助ヘッド）を実装しました。Phase 3では学習ループとロギング、チェックポイント保存を備えたトレーナーを追加し、Phase 4ではゼロショット評価とfew-shot適応のユーティリティ／スクリプトを整備しました。
+Phase 2ではベースラインモデルと損失群（共有正則化・疎AE・補助ヘッド）を実装しました。Phase 3では学習ループとロギング、チェックポイント保存を備えたトレーナーを追加し、Phase 4ではゼロショット評価とfew-shot適応のユーティリティ／スクリプトを整備しました。Phase 5ではCKA・Grassmann距離・疎コード統計を自動化する表現解析モジュールを追加しています。
 
 ## セットアップ
 1. Python 3.11系を`uv`で用意します。
@@ -49,6 +49,12 @@ src/mutual_concept_loss/
   │   ├── encoder.py
   │   ├── shared_autoencoder.py
   │   └── sparse_autoencoder.py
+  ├── analysis/
+  │   ├── __init__.py
+  │   ├── cka.py
+  │   ├── collection.py
+  │   ├── grassmann.py
+  │   └── sparse.py
   ├── training/
   │   ├── __init__.py
   │   ├── evaluation.py
@@ -61,6 +67,7 @@ src/mutual_concept_loss/
 - `models/`配下では共有ボトルネック付きのベースラインモデルと疎AE、補助ヘッドを提供します。
 - `losses/`配下ではタスク損失、共有正則化、疎AE損失、および重みスケジューラをまとめた`LossManager`を提供します。
 - `training/`配下ではTensorBoard/CSVロギングとチェックポイント保存を備えた`Trainer`と学習率スケジューラを提供します。
+- `analysis/`配下では表現解析ユーティリティを提供し、CKA/Grassmann距離や疎コード統計を計算できます。
 - `utils/seed.py`ではPython/NumPy/PyTorchのシード固定を一元化しています。
 - `tests/`にはPhase 2で追加されたモデル・損失の単体テストも含まれます。
 
@@ -79,6 +86,22 @@ python scripts/eval_zero_shot.py checkpoints/best.pt --device cuda --num-samples
 python scripts/finetune_few_shot.py checkpoints/best.pt --device cuda --support-samples 64 --query-samples 256
 ```
 
+## 表現解析
+Phase 5で追加された`scripts/analyze_representation.py`により、以下の処理を一括して実行できます。
+
+```bash
+python scripts/analyze_representation.py checkpoints/best.pt \
+  --device cuda \
+  --num-samples 1024 \
+  --heatmap-dir outputs/analysis/figures \
+  --output outputs/analysis/summary.json
+```
+
+- `--feature-keys`で指定したモデル出力間の線形CKAを算出し、数値行列とヒートマップ（Matplotlib利用時）を生成します。
+- `--grassmann-feature`はGrassmann距離の計算対象となる表現を指定し、合成長ごとにPCAを実施します。
+- 疎コード統計は`summarize_sparse_codes`を用いて平均活性・稼働率・プリミティブ相関を出力します。
+- `--evaluate`を指定すると同じ分割での評価指標も再計算し、JSONへ同梱します。
+
 ## 今後の予定
-- 生成タスクの統計やログ収集の整備を行います。
+- Phase 6として解析レポートと図表の文書化、再現手順の整備を進めます。
 
