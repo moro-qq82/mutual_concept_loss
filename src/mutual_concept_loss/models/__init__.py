@@ -4,7 +4,7 @@ from .encoder import ConvGridEncoder
 from .bottleneck import SharedBottleneck
 from .decoder import ConvGridDecoder
 from .sparse_autoencoder import SparseAutoencoder
-from .shared_autoencoder import SharedAutoencoderModel
+from .shared_autoencoder import SharedAutoencoderModel, SharedAutoencoderConfig
 from .adapters import LinearAdapter
 
 __all__ = [
@@ -13,5 +13,6 @@ __all__ = [
     "ConvGridDecoder",
     "SparseAutoencoder",
     "SharedAutoencoderModel",
+    "SharedAutoencoderConfig",
     "LinearAdapter",
 ]
