@@ -1,6 +1,7 @@
 # mutual_concept_loss
 
-共有サブスペースX仮説を検証するためのミニマルな実験基盤です。Phase 0/1では、`uv`を用いたPython環境整備と、8×8グリッド上で動作する合成タスク生成器を実装しました。
+共有サブスペースX仮説を検証するためのミニマルな実験基盤です。Phase 0/1では`uv`を用いたPython環境整備と合成タスク生成器を整備し、
+Phase 2ではベースラインモデルと損失群（共有正則化・疎AE・補助ヘッド）を実装しました。
 
 ## セットアップ
 1. Python 3.11系を`uv`で用意します。
@@ -34,14 +35,31 @@ src/mutual_concept_loss/
   │   ├── primitives.py
   │   ├── sampler.py
   │   └── transforms.py
+  ├── losses/
+  │   ├── __init__.py
+  │   ├── manager.py
+  │   ├── share.py
+  │   ├── sparse_autoencoder.py
+  │   └── task.py
+  ├── models/
+  │   ├── __init__.py
+  │   ├── adapters.py
+  │   ├── bottleneck.py
+  │   ├── decoder.py
+  │   ├── encoder.py
+  │   ├── shared_autoencoder.py
+  │   └── sparse_autoencoder.py
   └── utils/
       └── seed.py
 ```
 - `data/`配下に合成データ生成のためのプリミティブ、データセット、バッチサンプラを実装しています。
+- `models/`配下では共有ボトルネック付きのベースラインモデルと疎AE、補助ヘッドを提供します。
+- `losses/`配下ではタスク損失、共有正則化、疎AE損失、および重みスケジューラをまとめた`LossManager`を提供します。
 - `utils/seed.py`ではPython/NumPy/PyTorchのシード固定を一元化しています。
-- `tests/`にはプリミティブ、データセット、サンプラ向けの単体テストを配置しました。
+- `tests/`にはPhase 2で追加されたモデル・損失の単体テストも含まれます。
 
 ## 今後の予定
-- Phase 2以降でモデル本体、損失関数、学習スクリプトを順次追加します。
+- Phase 3で学習ループとロギング、チェックポイントを実装します。
+- Phase 4でゼロショット評価とfew-shot適応スクリプトを整備します。
 - 生成タスクの統計やログ収集の整備を行います。
 
