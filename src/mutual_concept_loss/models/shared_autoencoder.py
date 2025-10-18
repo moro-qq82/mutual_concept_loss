@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Iterable
 
 import torch
 from torch import nn
@@ -46,12 +47,14 @@ class SharedAutoencoderModel(nn.Module):
         self.decoder = ConvGridDecoder(self.config.decoder)
         self.sparse = SparseAutoencoder(self.config.sparse)
         self.aux_head = nn.Linear(self.config.bottleneck.hidden_dim, self.config.num_primitives)
+        self.adapter: nn.Module = nn.Identity()
 
     def forward(self, grid: torch.Tensor) -> dict[str, torch.Tensor]:
         """Compute task logits, reconstructions, and auxiliary predictions."""
 
         features = self.encoder(grid)
         shared = self.bottleneck(features)
+        shared = self.adapter(shared)
         grid_logits = self.decoder(shared)
         reconstruction = grid_logits.permute(0, 2, 3, 1).contiguous()
         sparse_recon, sparse_code = self.sparse(shared)
@@ -64,3 +67,20 @@ class SharedAutoencoderModel(nn.Module):
             "sparse_code": sparse_code,
             "primitive_logits": primitive_logits,
         }
+
+    def attach_adapter(self, adapter: nn.Module) -> None:
+        """Register an adapter module applied after the bottleneck."""
+
+        if not isinstance(adapter, nn.Module):
+            raise TypeError("adapter must be an nn.Module")
+        self.adapter = adapter
+
+    def detach_adapter(self) -> None:
+        """Remove the currently registered adapter."""
+
+        self.adapter = nn.Identity()
+
+    def adapter_parameters(self) -> Iterable[nn.Parameter]:
+        """Return parameters belonging to the active adapter."""
+
+        return self.adapter.parameters()

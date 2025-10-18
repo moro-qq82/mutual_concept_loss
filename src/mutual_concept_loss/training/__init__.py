@@ -8,7 +8,14 @@ from .loop import (
     Trainer,
 )
 from .scheduler import CosineWarmupSchedulerConfig, build_cosine_warmup_scheduler
-from .evaluation import evaluate_loop
+from .evaluation import (
+    EvaluationDataConfig,
+    FewShotDataConfig,
+    build_few_shot_loaders,
+    build_zero_shot_dataloader,
+    evaluate_loop,
+)
+from .few_shot import FewShotConfig, FewShotResult, run_few_shot_adaptation
 
 __all__ = [
     "CheckpointConfig",
@@ -18,5 +25,12 @@ __all__ = [
     "Trainer",
     "CosineWarmupSchedulerConfig",
     "build_cosine_warmup_scheduler",
+    "EvaluationDataConfig",
+    "FewShotDataConfig",
+    "build_few_shot_loaders",
+    "build_zero_shot_dataloader",
     "evaluate_loop",
+    "FewShotConfig",
+    "FewShotResult",
+    "run_few_shot_adaptation",
 ]

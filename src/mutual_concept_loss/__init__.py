@@ -28,12 +28,19 @@ from .models import (
 from .training import (
     CheckpointConfig,
     CosineWarmupSchedulerConfig,
+    EvaluationDataConfig,
+    FewShotConfig,
+    FewShotDataConfig,
+    FewShotResult,
     LoggingConfig,
     OptimizerConfig,
     TrainingConfig,
     Trainer,
     build_cosine_warmup_scheduler,
+    build_few_shot_loaders,
+    build_zero_shot_dataloader,
     evaluate_loop,
+    run_few_shot_adaptation,
 )
 from .utils.seed import set_seed
 
@@ -59,11 +66,18 @@ __all__ = [
     "SparseAutoencoder",
     "CheckpointConfig",
     "CosineWarmupSchedulerConfig",
+    "EvaluationDataConfig",
+    "FewShotConfig",
+    "FewShotDataConfig",
+    "FewShotResult",
     "LoggingConfig",
     "OptimizerConfig",
     "TrainingConfig",
     "Trainer",
     "build_cosine_warmup_scheduler",
+    "build_few_shot_loaders",
+    "build_zero_shot_dataloader",
     "evaluate_loop",
+    "run_few_shot_adaptation",
     "set_seed",
 ]
