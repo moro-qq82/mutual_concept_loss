@@ -4,25 +4,25 @@
 Phase 2ではベースラインモデルと損失群（共有正則化・疎AE・補助ヘッド）を実装しました。Phase 3では学習ループとロギング、チェックポイント保存を備えたトレーナーを追加し、Phase 4ではゼロショット評価とfew-shot適応のユーティリティ／スクリプトを整備しました。Phase 5ではCKA・Grassmann距離・疎コード統計を自動化する表現解析モジュールを追加しています。
 
 ## セットアップ
-1. Python 3.11系を`uv`で用意します。
+1. Python 3.11系の仮想環境を`uv`で用意します。
    ```bash
-   uv python install 3.11
+   uv venv --python 3.11
    ```
-2. 仮想環境を作成します。
-   ```bash
-   uv venv .venv
-   ```
-3. 依存パッケージを同期します。
-   ```bash
-   uv pip sync pyproject.toml --extra dev
-   ```
-   - このリポジトリではネットワーク制限環境で生成したため`uv.lock`はプレースホルダです。実行環境で以下を実行してロックファイルを再生成してください。
+
+2. 依存パッケージを同期します。
+      - 簡単（pyprojectの依存＋devを直接インストール）
      ```bash
-     uv pip compile pyproject.toml -o uv.lock
+     uv sync --extra dev
      ```
-4. 環境を有効化し、テストを実行します。
+   - ロックファイルを明示的に再生成してから同期
+     ```bash
+     # 既存のプレースホルダ uv.lock がある場合は上書き
+     uv pip compile pyproject.toml --extra dev -o uv.lock
+     uv pip sync uv.lock
+     ```
+
+3. テストを実行します。
    ```bash
-   source .venv/bin/activate
    uv run pytest
    ```
 
