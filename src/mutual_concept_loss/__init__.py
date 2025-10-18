@@ -25,6 +25,16 @@ from .models import (
     SharedBottleneck,
     SparseAutoencoder,
 )
+from .training import (
+    CheckpointConfig,
+    CosineWarmupSchedulerConfig,
+    LoggingConfig,
+    OptimizerConfig,
+    TrainingConfig,
+    Trainer,
+    build_cosine_warmup_scheduler,
+    evaluate_loop,
+)
 from .utils.seed import set_seed
 
 __all__ = [
@@ -47,5 +57,13 @@ __all__ = [
     "SharedAutoencoderModel",
     "SharedBottleneck",
     "SparseAutoencoder",
+    "CheckpointConfig",
+    "CosineWarmupSchedulerConfig",
+    "LoggingConfig",
+    "OptimizerConfig",
+    "TrainingConfig",
+    "Trainer",
+    "build_cosine_warmup_scheduler",
+    "evaluate_loop",
     "set_seed",
 ]
