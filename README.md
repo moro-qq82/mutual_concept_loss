@@ -84,19 +84,28 @@ python scripts/generate_experiment_datasets.py outputs/datasets \
 ```
 
 ## 学習の実行
-- Phase 3で実装したトレーナーをCLIから呼び出すために、`scripts/train_once.py`を追加しています。オンザフライ生成された合成タスクに対して、共有サブスペース正則化と疎AEを含むベースライン学習を1回だけ流します。
+- Phase 3で実装したトレーナーをCLIから呼び出すために、共通の引数セットを`mutual_concept_loss.training.cli`として切り出し、複数スクリプトから再利用できるようにしました。
+- `scripts/train_general.py`は共有サブスペース正則化と疎AEを含む基本設定の学習スクリプトで、`--shared-weight`や`--sparse-weight`で損失の重みを調整できます。
+- `scripts/train_ablation_no_sparse.py`は疎AE損失を無効化したアブレーション、`scripts/train_ablation_no_shared.py`は共有サブスペース正則化を除去したアブレーションを実行します。
+- `scripts/train_baseline.py`はタスク損失のみを学習する比較用ベースラインを提供します。
 - 既定ではCUDAが利用可能な場合はGPUを、そうでない場合はCPUを自動的に使用します。CPU実行時は`--device cpu`を明示しつつ、`--train-samples`や`--max-steps`を小さく設定することで時間を調整できます。
 
 ### 使用例
 ```bash
-# GPU利用時（TensorBoard/CSVも有効）
-uv run python scripts/train_once.py --output-dir outputs/training_runs
+# 共有サブスペースと疎AEを含む一般設定
+uv run python scripts/train_general.py --output-dir outputs/general_training_run
 
-# CPU利用時の軽量設定（TensorBoard/CSVはオフ）
-uv run python scripts/train_once.py \
-  --device cpu \
-  --train-samples 512 --val-samples 128 \
-  --max-steps 100 --no-tensorboard --no-csv
+# 損失重みを変えたバリエーション（例：共有正則化を弱める）
+uv run python scripts/train_general.py --shared-weight 0.5 --sparse-weight 1.5
+
+# 疎AE無しのアブレーション
+uv run python scripts/train_ablation_no_sparse.py --max-steps 500
+
+# 共有正則化無しのアブレーション
+uv run python scripts/train_ablation_no_shared.py --train-samples 2048
+
+# タスク損失のみの比較ベースライン
+uv run python scripts/train_baseline.py --device cpu --max-steps 200 --no-tensorboard --no-csv
 ```
 
 ## 評価とfew-shot適応
