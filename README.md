@@ -83,6 +83,22 @@ python scripts/generate_experiment_datasets.py outputs/datasets \
   --train-composition 1 2 --evaluation-composition 3 3
 ```
 
+## 学習の実行
+- Phase 3で実装したトレーナーをCLIから呼び出すために、`scripts/train_once.py`を追加しています。オンザフライ生成された合成タスクに対して、共有サブスペース正則化と疎AEを含むベースライン学習を1回だけ流します。
+- 既定ではCUDAが利用可能な場合はGPUを、そうでない場合はCPUを自動的に使用します。CPU実行時は`--device cpu`を明示しつつ、`--train-samples`や`--max-steps`を小さく設定することで時間を調整できます。
+
+### 使用例
+```bash
+# GPU利用時（TensorBoard/CSVも有効）
+uv run python scripts/train_once.py --output-dir outputs/training_runs
+
+# CPU利用時の軽量設定（TensorBoard/CSVはオフ）
+uv run python scripts/train_once.py \
+  --device cpu \
+  --train-samples 512 --val-samples 128 \
+  --max-steps 100 --no-tensorboard --no-csv
+```
+
 ## 評価とfew-shot適応
 - `mutual_concept_loss.training.EvaluationDataConfig`と`build_zero_shot_dataloader`を利用することで、未見合成（例：合成長3）に対するゼロショット評価データローダを構築できます。
 - `mutual_concept_loss.training.FewShotDataConfig`と`build_few_shot_loaders`は、サポート集合とクエリ集合を分けたfew-shotデータ分割を生成します。
