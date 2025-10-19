@@ -44,7 +44,7 @@
      --support-samples 64 \
      --query-samples 256 \
      --max-steps 200 \
-     --log-dir outputs/phase6/few_shot
+     --output outputs/phase6/few_shot/metrics.csv
    ```
    - CPU実行時は`--device cpu`に変更し、`--max-steps`を64程度まで短縮してください。
 2. 実行後に生成される`metrics.csv`を集計し、サポートサンプル数と性能の推移を折れ線グラフとしてまとめます。Matplotlibが利用できる環境では以下のようなスクリプトを活用します。
