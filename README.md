@@ -71,6 +71,18 @@ src/mutual_concept_loss/
 - `utils/seed.py`ではPython/NumPy/PyTorchのシード固定を一元化しています。
 - `tests/`にはPhase 2で追加されたモデル・損失の単体テストも含まれます。
 
+## データセット生成
+- Phase 2の設定に従った学習・評価用タスクを事前に固めておきたい場合は、`scripts/generate_experiment_datasets.py`を利用すると学習/検証/テスト分割（既定で5万/5千/5千サンプル）をまとめて生成できます。
+- 生成結果は`train.pt`/`val.pt`/`test.pt`と`manifest.json`に保存され、各分割のシードや`GeneratorConfig`の内容がメタデータとして含まれます。
+
+### 使用例
+```bash
+# Phase 3以降の再現実験向けにデータセットを固定
+python scripts/generate_experiment_datasets.py outputs/datasets \
+  --train-samples 50000 --val-samples 5000 --test-samples 5000 \
+  --train-composition 1 2 --evaluation-composition 3 3
+```
+
 ## 評価とfew-shot適応
 - `mutual_concept_loss.training.EvaluationDataConfig`と`build_zero_shot_dataloader`を利用することで、未見合成（例：合成長3）に対するゼロショット評価データローダを構築できます。
 - `mutual_concept_loss.training.FewShotDataConfig`と`build_few_shot_loaders`は、サポート集合とクエリ集合を分けたfew-shotデータ分割を生成します。

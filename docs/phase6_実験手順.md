@@ -13,6 +13,12 @@
    mkdir -p outputs/phase6/{zero_shot,few_shot,analysis}
    ```
 2. チェックポイントを`checkpoints/`直下に配置します。
+3. 合成タスクを固定した分割として利用する場合は、以下のコマンドでPhase 2仕様のデータセットを生成し、`outputs/datasets/`などに保存しておきます（オンザフライ生成でも問題ありません）。
+   ```bash
+   uv run python scripts/generate_experiment_datasets.py outputs/datasets \
+     --train-samples 50000 --val-samples 5000 --test-samples 5000 \
+     --train-composition 1 2 --evaluation-composition 3 3
+   ```
 
 ## 3. ゼロショット評価
 未見合成長（既定では3）に対する性能を記録し、表形式で整理します。
